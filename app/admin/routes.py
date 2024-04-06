@@ -11,14 +11,14 @@ admin = Blueprint("admin", __name__, url_prefix="/admin", static_folder="static"
 @admin_only
 def dashboard():
     orders = session.query(Order).all()
-    return render_template("admin.html", orders=orders)
+    return render_template("admin/admin.html", orders=orders)
 
 
 @admin.route("/items")
 @admin_only
 def items():
     items = session.query(Item).all()
-    return render_template("items.html", items=items)
+    return render_template("admin/items.html", items=items)
 
 
 @admin.route("/add", methods=["GET", "POST"])
@@ -30,7 +30,7 @@ def add():
         price = form.price.data
         category = form.category.data
         details = form.details.data
-        form.data.save("static/uploads" + form.image.data.filename)
+        form.data.save("static/uploads/" + form.image.data.filename)
         image = url_for("static", filename=f"uploads/{form.image.data.filename}")
         price_id = form.price_id.data
 
@@ -52,11 +52,12 @@ def add():
             raise exc
         finally:
             session.close()
+
     else:
-        return render_template("add.html", form=form)
+        return render_template("admin/add.html", form=form)
 
 
-@admin.route("/edit/<string: type>/int:id>", methods=["GET", "POST"])
+@admin.route("/edit/<string:type>/<int:id>", methods=["GET", "POST"])
 @admin_only
 def edit(type, id):
     if type == "item":
@@ -72,11 +73,11 @@ def edit(type, id):
         if form.validate_on_submit():
             item.name = form.name.data
             item.price = form.price.data
-            item.category = form.category.data
             item.details = form.details.data
+            item.category = form.category.data
             item.price_id = form.price_id.data
 
-            form.data.save("static/uploads/" + form.image.data.filename)
+#            form.data.save("static/uploads/" + form.image.data.filename)
             item.image = url_for("static", filename=f"uploads/{form.image.data.filename}")
             session.commit()
             return redirect(url_for("admin.items"))
@@ -84,15 +85,13 @@ def edit(type, id):
             order = session.query(Order).get(id)
             form = OrderEditForm(
                 status=order.status
-
             )
             if form.validate_on_submit():
                 order.status = form.status.data
                 session.commit()
                 return redirect(url_for("admin.dashboard"))
         else:
-            return render_template("add.html", form=form)
-
+            return render_template("admin/add.html", form=form)
 
 @admin.route("/delete/<int:id>")
 @admin_only
@@ -100,5 +99,5 @@ def delete(id):
     item_to_delete = session.query(Item).get(id)
     session.delete(item_to_delete)
     session.commit()
-    flash(f"{item_to_delete} deleted successfully", "error")
+    flash(f"{item_to_delete.name} deleted successfully", "error")
     return redirect(url_for("admin.items"))

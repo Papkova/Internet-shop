@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Failure Payment
+{% endblock %}
+
+{% block content %}
+    <div class="success">
+        Payment could not be completed! Please, try again<br>
+        <a href="{{ url_for('orders') }}">Back</a>
+    </div>
+{% endblock %}

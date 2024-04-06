@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cart
+{% endblock %}
+
+<script src="https://js.stripe.com/v3/"></script>
+
+{% block content %}
+    {% with msgs = get_flashed_messages(with_categories=True) %}
+        {% for category, message in msgs %}
+            {% if category == 'error' %}
+                <div class="flash-error">
+                    {{ message | safe }}
+                </div>
+            {% else %}
+                <div class="success">
+                    {{ message | safe }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
+
+    {% if not items %}
+        <div class="flash-error">
+            Cart is empty!<br>
+            <a href="{{ url_for('home') }}">Add new items</a>
+        </div>
+    {% else %}
+        <a href="{{ url_for('home') }}">Add new items</a><br><br>
+    {% endif %}
+
+    <div class="items">
+        {% for item in range(items|length) %}
+            <div class="item">
+                <div class="item-wrapper">
+                    <div class="img-wrapper">
+                        <img src="{{ items[item].image }}" class="pic">
+                    </div>
+                    <b>{{ items[item].name }}</b>
+                    <span class="right-item">{{ items[item].price }}</span><br>
+                    Quantity:
+                    <span class="right-item">{{ quantity[item] }}</span><br>
+                    Total:
+                    <span class="right-item">{{ items[item].price * quantity[item] }}$</span>
+                    <br><br>
+                    <a href="{{ url_for('remove', id=items[item].id, quantity=quantity[item] ) }}">
+                        <button class="remove-from-cart">Remove From Cart</button>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

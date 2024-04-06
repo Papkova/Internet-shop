@@ -31,7 +31,7 @@ class User(UserMixin, Base):
     def remove_from_cart(self, item_id, quantity):
         item_to_delete = session.query(Cart).filter_by(item_id=item_id, quantity=quantity, uid=self.id).first()
         try:
-            session.add(item_to_delete)
+            session.delete(item_to_delete)
             session.commit()
         except Exception as exc:
             return exc
